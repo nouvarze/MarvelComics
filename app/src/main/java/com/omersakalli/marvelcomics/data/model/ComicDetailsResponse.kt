@@ -3,6 +3,7 @@ package com.omersakalli.marvelcomics.data.model
 
 import com.google.gson.annotations.SerializedName
 
+//Currently not used
 data class ComicDetailsResponse(
     @SerializedName("attributionHTML")
     val attributionHTML: String,

@@ -10,10 +10,9 @@
         android:layout_margin="10dp">
         <ImageView
             android:id="@+id/ivComicCover"
-            android:layout_width="100dp"
-            android:layout_height="wrap_content"
+            android:layout_width="@dimen/comics_list_item_width"
+            android:layout_height="@dimen/comics_list_item_height"
             android:adjustViewBounds="true"
-            tools:layout_height="150dp"
             tools:src="@color/white"
             tools:ignore="ContentDescription" />
     </androidx.cardview.widget.CardView>

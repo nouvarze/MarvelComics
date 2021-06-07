@@ -13,6 +13,7 @@ import com.omersakalli.marvelcomics.databinding.ComicsListItemBinding
 import com.omersakalli.marvelcomics.ui.model.Comic
 import com.omersakalli.marvelcomics.utils.ImageUtils
 import com.omersakalli.marvelcomics.utils.ImageUtils.extractUrl
+import com.omersakalli.marvelcomics.utils.StringUtils.httpToHttps
 
 class ComicsListAdapter(
     val onComicClickListener: OnComicClickListener
@@ -41,12 +42,13 @@ class ComicsListAdapter(
             val context = binding.root.context
             binding.root.setOnClickListener { onComicClickListener.onComicClick(comicsList[adapterPosition]) }
             loadImage(comic.thumbnail, context)
+            binding.ivComicCover.contentDescription = comic.title
         }
 
-        private fun loadImage(thumbnail: Thumbnail?, context: Context){ //TODO: Save images
+        private fun loadImage(thumbnail: Thumbnail?, context: Context){
             thumbnail?.let { _->
                 Glide.with(binding.root)
-                    .load(thumbnail.extractUrl(ImageUtils.AspectRatio.PORTRAIT, context.resources.displayMetrics.densityDpi))
+                    .load(thumbnail.extractUrl(ImageUtils.AspectRatio.PORTRAIT, context.resources.displayMetrics.densityDpi).httpToHttps())
                     .placeholder(R.drawable.progress_animation)
                     .error(R.drawable.ic_baseline_error_outline_24)
                     .diskCacheStrategy(DiskCacheStrategy.ALL)

@@ -12,4 +12,10 @@ object StringUtils {
             Html.fromHtml(this)
         }
     }
+
+    fun String.httpToHttps(): String {
+        return if (this.substringBefore("://") == "http")
+            this.replaceBefore("://", "https")
+        else this
+    }
 }

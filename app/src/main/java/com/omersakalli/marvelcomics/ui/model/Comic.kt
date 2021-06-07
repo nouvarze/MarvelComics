@@ -7,10 +7,10 @@ import androidx.room.PrimaryKey
 import androidx.room.TypeConverters
 import com.omersakalli.marvelcomics.data.model.ComicsResponse
 import com.omersakalli.marvelcomics.data.model.Thumbnail
-import com.omersakalli.marvelcomics.utils.mTypeConverters
+import com.omersakalli.marvelcomics.utils.MTypeConverters
 
 @Entity
-@TypeConverters(mTypeConverters::class)
+@TypeConverters(MTypeConverters::class)
 data class Comic(
     @PrimaryKey
     val id: Int?,

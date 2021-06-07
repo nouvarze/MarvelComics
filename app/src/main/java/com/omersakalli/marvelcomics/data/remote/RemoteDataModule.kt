@@ -1,7 +1,5 @@
 package com.omersakalli.marvelcomics.data.remote
 
-import com.omersakalli.marvelcomics.data.remote.MarvelService
-import com.omersakalli.marvelcomics.data.remote.RemoteDataSource
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn

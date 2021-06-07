@@ -14,6 +14,8 @@ class Repository(private val localDataSource: LocalDataSource, private val remot
         else return dbResponse
     }
 
+    fun getComicsFromDatabase(): Result<List<Comic>> = localDataSource.getComics()
+
     suspend fun getComicsFromNetwork(): Result<List<Comic>> {
         val remoteResponse = remoteDataSource.getComics()
         if(remoteResponse.isSuccessful){

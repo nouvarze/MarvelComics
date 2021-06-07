@@ -5,7 +5,6 @@ import com.omersakalli.marvelcomics.ui.model.Comic
 import com.omersakalli.marvelcomics.utils.LoggingTags
 import com.omersakalli.marvelcomics.data.Result
 import okhttp3.ResponseBody
-import java.lang.Exception
 import java.net.ConnectException
 import java.net.UnknownHostException
 

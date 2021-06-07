@@ -1,6 +1,5 @@
 package com.omersakalli.marvelcomics.data
 
-import com.omersakalli.marvelcomics.data.Repository
 import com.omersakalli.marvelcomics.data.local.LocalDataSource
 import com.omersakalli.marvelcomics.data.remote.RemoteDataSource
 import dagger.Module

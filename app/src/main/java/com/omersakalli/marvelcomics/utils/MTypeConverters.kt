@@ -4,7 +4,7 @@ import androidx.room.TypeConverter
 import com.google.gson.Gson
 import com.omersakalli.marvelcomics.data.model.Thumbnail
 
-class mTypeConverters {
+class MTypeConverters {
     @TypeConverter
     fun thumbnailToString(thumbnail: Thumbnail): String = Gson().toJson(thumbnail)
 

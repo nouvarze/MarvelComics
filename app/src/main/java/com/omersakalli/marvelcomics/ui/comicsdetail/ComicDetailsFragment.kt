@@ -1,5 +1,6 @@
 package com.omersakalli.marvelcomics.ui.comicsdetail
 
+import android.content.res.Configuration
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -16,6 +17,7 @@ import com.omersakalli.marvelcomics.ui.model.Comic
 import com.omersakalli.marvelcomics.utils.BundleKeys
 import com.omersakalli.marvelcomics.utils.ImageUtils
 import com.omersakalli.marvelcomics.utils.ImageUtils.extractUrl
+import com.omersakalli.marvelcomics.utils.StringUtils.httpToHttps
 
 class ComicDetailsFragment : Fragment() {
 
@@ -27,7 +29,8 @@ class ComicDetailsFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        mBinding = DataBindingUtil.inflate(inflater,R.layout.comics_detail_fragment,container,false)
+        mBinding =
+            DataBindingUtil.inflate(inflater, R.layout.comics_detail_fragment, container, false)
         (arguments?.getParcelable(BundleKeys.COMIC) as Comic?)?.let {
             viewModel.comic.value = it
         } ?: kotlin.run {
@@ -45,20 +48,27 @@ class ComicDetailsFragment : Fragment() {
         comicDetailBottomSheetFragment = ComicDetailBottomSheetFragment(viewModel)
         mBinding.ivBackButton.setOnClickListener { activity?.onBackPressed() }
         mBinding.ivOpenDetailsButton.setOnClickListener {
-            comicDetailBottomSheetFragment.show(parentFragmentManager,"COMIC_DETAIL_BOTTOM_SHEET")
+            comicDetailBottomSheetFragment.show(parentFragmentManager, "COMIC_DETAIL_BOTTOM_SHEET")
         }
         mBinding.tvOpenDetails.setOnClickListener {
-            comicDetailBottomSheetFragment.show(parentFragmentManager,"COMIC_DETAIL_BOTTOM_SHEET")
+            comicDetailBottomSheetFragment.show(parentFragmentManager, "COMIC_DETAIL_BOTTOM_SHEET")
         }
-        viewModel.comic.observe(viewLifecycleOwner,{
+        viewModel.comic.observe(viewLifecycleOwner, {
             loadCoverImage(it.thumbnail)
         })
     }
 
-    private fun loadCoverImage(thumbnail: Thumbnail?){
-        thumbnail?.let { _->
+    private fun loadCoverImage(thumbnail: Thumbnail?) {
+        val orientation = resources.configuration.orientation
+
+        thumbnail?.let { _ ->
+            val url = if (orientation == Configuration.ORIENTATION_PORTRAIT)
+                thumbnail.extractUrl().httpToHttps()
+            else
+                thumbnail.extractUrl(ImageUtils.AspectRatio.LANDSCAPE, true).httpToHttps()
+
             Glide.with(mBinding.root)
-                .load(thumbnail.extractUrl())
+                .load(url)
                 .placeholder(R.drawable.progress_animation)
                 .error(R.drawable.ic_baseline_error_outline_24)
                 .into(mBinding.ivCoverArt)
@@ -68,5 +78,6 @@ class ComicDetailsFragment : Fragment() {
                 .error(R.drawable.ic_baseline_error_outline_24)
                 .into(mBinding.ivCoverArt)
         }
+
     }
 }

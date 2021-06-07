@@ -1,24 +1,24 @@
 package com.omersakalli.marvelcomics.ui.comicslist
 
 import android.os.Bundle
-import androidx.fragment.app.Fragment
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.AdapterView
+import android.view.ViewTreeObserver.OnGlobalLayoutListener
 import androidx.databinding.DataBindingUtil
+import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.bumptech.glide.Glide
 import com.omersakalli.marvelcomics.R
 import com.omersakalli.marvelcomics.databinding.ComicsListFragmentBinding
-import com.omersakalli.marvelcomics.ui.GridAutofitLayoutManager
 import com.omersakalli.marvelcomics.ui.model.Comic
 import com.omersakalli.marvelcomics.utils.BundleKeys
-import com.omersakalli.marvelcomics.utils.ImageUtils.extractUrl
+import com.omersakalli.marvelcomics.utils.LoggingTags
 import dagger.hilt.android.AndroidEntryPoint
+
 
 @AndroidEntryPoint
 class ComicsListFragment : Fragment(), OnComicClickListener {
@@ -33,11 +33,19 @@ class ComicsListFragment : Fragment(), OnComicClickListener {
     ): View {
         mBinding =
             DataBindingUtil.inflate(inflater, R.layout.comics_list_fragment, container, false)
+        mAdapter = ComicsListAdapter(this)
         return mBinding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        view.viewTreeObserver.addOnGlobalLayoutListener(object : OnGlobalLayoutListener {
+            override fun onGlobalLayout() {
+                view.viewTreeObserver.removeOnGlobalLayoutListener(this)
+                initRecyclerView(view.height)
+            }
+        })
 
         mBinding.vm = viewModel
         viewModel.fetchComics()
@@ -46,24 +54,22 @@ class ComicsListFragment : Fragment(), OnComicClickListener {
 
     }
 
-    private fun initViews(){
-        initRecyclerView()
+    private fun initViews() {
         mBinding.swipeRefreshLayout.setOnRefreshListener {
             viewModel.fetchComicsFromNetwork()
-            //TODO: Can add a pop-up when there is no internet to make sure user doesn't lose data
         }
     }
 
-    private fun initObservers(){
+    private fun initObservers() {
         viewModel.comics.observe(viewLifecycleOwner, {
             mAdapter.comicsList = it
             mAdapter.notifyDataSetChanged()
             mBinding.swipeRefreshLayout.isRefreshing = false
         })
-        viewModel.progressBarVisibility.observe(viewLifecycleOwner,{
+        viewModel.progressBarVisibility.observe(viewLifecycleOwner, {
             mBinding.progressBar.visibility = it
         })
-        viewModel.navigateToErrorPage.observe(viewLifecycleOwner,{
+        viewModel.navigateToErrorPage.observe(viewLifecycleOwner, {
             findNavController().navigate(
                 R.id.action_comicsListFragment_to_comicDetailsFragment,
                 Bundle().apply { putString(BundleKeys.ERROR_TEXT, it) }
@@ -71,10 +77,14 @@ class ComicsListFragment : Fragment(), OnComicClickListener {
         })
     }
 
-    private fun initRecyclerView() {
-        mAdapter = ComicsListAdapter(this)
+    private fun initRecyclerView(height: Int) {
         mBinding.rvComicsList.run {
-            layoutManager = GridAutofitLayoutManager(context, 300, RecyclerView.HORIZONTAL, false)
+            layoutManager = GridLayoutManager(
+                context,
+                calculateSpanCount(height),
+                RecyclerView.HORIZONTAL,
+                false
+            )
             adapter = mAdapter
         }
     }
@@ -84,6 +94,17 @@ class ComicsListFragment : Fragment(), OnComicClickListener {
             R.id.action_comicsListFragment_to_comicDetailsFragment,
             Bundle().apply { putParcelable(BundleKeys.COMIC, comic) }
         )
+    }
+
+    private fun calculateSpanCount(height: Int): Int {
+        val result = height / resources.getDimensionPixelSize(R.dimen.comics_list_item_height)
+        Log.d(LoggingTags.FRAGMENT_CALCULATIONS, "Height: $height, Result: $result")
+
+        if (result > 0) return result
+        else {
+            Log.e(LoggingTags.FRAGMENT_CALCULATIONS, "Error calculating span count, defaulting to 2")
+            return 2
+        }
     }
 
 }
